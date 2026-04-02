@@ -1,7 +1,7 @@
 {
-  "name": "CKP\u30b7\u30df\u30e5\u30ec\u30fc\u30bf\u30fc \u2014 AEOLUS TYRE",
-  "short_name": "CKP\u30b7\u30df\u30e5",
-  "description": "\u30b3\u30b9\u30c8\u30fb\u30ad\u30ed\u30fb\u30d1\u30d5\u30a9\u30fc\u30de\u30f3\u30b9 \u2014 1km\u8d70\u308b\u306e\u306b\u3044\u304f\u3089\u304b\u304b\u308b\u304b\uff1f",
+  "name": "AEOLUS TYRE CKP",
+  "short_name": "AEOLUS CKP",
+  "description": "コスト・キロ・パフォーマンス — 1km走るのにいくらかかるか？",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
