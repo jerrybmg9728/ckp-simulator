@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
+<!-- PWA メタタグ -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CKPシミュ">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#003366">
+<meta name="format-detection" content="telephone=no">
+
+<!-- アイコン・マニフェスト -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+<!-- iOS スプラッシュスクリーン（CSSで対応） -->
+<meta name="apple-mobile-web-app-title" content="CKPシミュ">
+
+<title>CKPシミュレーター — AEOLUS TYRE</title>
+<style>
+  /* === リセット・基本 === */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "游ゴシック", "Yu Gothic", "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", sans-serif;
+    background: #f0f2f5;
+    color: #222;
+    line-height: 1.6;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* === カラー変数 === */
+  :root {
+    --navy: #003366;
+    --navy-dark: #002244;
+    --gold: #D4A843;
+    --gold-light: #e8c96a;
+    --gold-bg: rgba(212, 168, 67, 0.08);
+    --white: #ffffff;
+    --gray-light: #f5f6f8;
+    --gray: #e0e2e6;
+    --gray-text: #666;
+    --green: #1a8a3f;
+    --green-bg: rgba(26, 138, 63, 0.08);
+    --red: #c0392b;
+  }
+
+  /* === ヘッダー === */
+  .header {
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    color: var(--white);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+  .header-center {
+    text-align: center;
+    flex: 1;
+    padding: 0 8px;
+  }
+  .header-center h1 {
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 1px;
+  }
+  .header-center .subtitle {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    font-weight: 400;
+  }
+  .header-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .header-actions button {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: var(--white);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: background 0.2s;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-actions button:active {
+    background: rgba(255,255,255,0.35);
+  }
+
+  /* === メインコンテナ === */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 12px 32px;
+  }
+
+  /* === セクションタイトル === */
+  .step-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-title .badge {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  /* === カード === */
+  .card-row {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card-row.three { grid-template-columns: 1fr; }
+  .card-row.two { grid-template-columns: 1fr; }
+
+  .card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--gray);
+  }
+  .card.gold-border {
+    border: 2px solid var(--gold);
+    background: linear-gradient(180deg, rgba(212,168,67,0.04), var(--white));
+  }
+  .card-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .card-label.gold { color: var(--gold); }
+
+  /* === 入力欄 === */
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .input-group input {
+    flex: 1;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 12px 14px;
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    text-align: right;
+    font-family: inherit;
+    color: var(--navy);
+    transition: border-color 0.2s;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 48px;
+  }
+  .input-group input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+  }
+  .input-group .unit {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-text);
+    white-space: nowrap;
+  }
+  .input-hint {
+    font-size: 0.75rem;
+    color: var(--gray-text);
+    margin-bottom: 8px;
+  }
+
+  /* === プリセットボタン === */
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .presets button {
+    background: var(--gray-light);
+    border: 1px solid var(--gray);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--navy);
+    transition: all 0.15s;
+    white-space: nowrap;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+  .presets button:active {
+    background: var(--navy);
+    color: var(--white);
+    border-color: var(--navy);
+    transform: scale(0.96);
+  }
+  .presets.gold button:active {
+    background: var(--gold);
+    color: var(--white);
+    border-color: var(--gold);
+  }
+
+  /* === STEP2 比較カードタイトル === */
+  .compare-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--gray);
+  }
+  .compare-title.gold {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* === CKPバー === */
+  .ckp-bars {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--gray);
+    margin-bottom: 16px;
+  }
+  .ckp-bar-row {
+    margin-bottom: 14px;
+  }
+  .ckp-bar-row:last-child { margin-bottom: 0; }
+  .ckp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .ckp-bar-label .name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .ckp-bar-label .value {
+    font-size: 1.2rem;
+    font-weight: 900;
+  }
+  .ckp-bar-label .value.current { color: #888; }
+  .ckp-bar-label .value.aeolus { color: var(--gold); }
+  .ckp-bar-track {
+    background: var(--gray-light);
+    border-radius: 8px;
+    height: 28px;
+    overflow: hidden;
+  }
+  .ckp-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+    min-width: 4px;
+  }
+  .ckp-bar-fill.current { background: #aab; }
+  .ckp-bar-fill.aeolus { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+  /* === 詳細テーブル === */
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid var(--gray);
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+  }
+  .detail-table th, .detail-table td {
+    padding: 10px 8px;
+    text-align: right;
+  }
+  .detail-table th {
+    background: var(--navy);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.72rem;
+  }
+  .detail-table th:first-child, .detail-table td:first-child {
+    text-align: left;
+  }
+  .detail-table tr:nth-child(even) { background: var(--gray-light); }
+  .detail-table td.green {
+    color: var(--green);
+    font-weight: 700;
+  }
+  .detail-table td.red {
+    color: var(--red);
+    font-weight: 700;
+  }
+
+  /* === インパクト表示 === */
+  .impact {
+    background: linear-gradient(135deg, #c9a230, var(--gold), var(--gold-light), var(--gold));
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    color: var(--navy-dark);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .impact::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.2), transparent 60%);
+    pointer-events: none;
+  }
+  .impact .intro {
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.8;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .impact .big-number {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    position: relative;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .impact .big-number .yen {
+    font-size: 1.8rem;
+  }
+  .impact .label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 4px;
+    position: relative;
+  }
+  .impact .sub {
+    font-size: 0.85rem;
+    margin-top: 8px;
+    opacity: 0.75;
+    position: relative;
+  }
+  .impact.negative {
+    background: linear-gradient(135deg, #bbb, #999);
+  }
+
+  /* === フッター === */
+  .footer {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--gray-text);
+    padding: 12px 16px 24px;
+    line-height: 1.8;
+  }
+  .footer strong {
+    color: var(--navy);
+  }
+
+  /* === タブレット以上（iPad等） === */
+  @media (min-width: 768px) {
+    .header-center h1 { font-size: 1.8rem; }
+    .header-center .subtitle { font-size: 0.85rem; }
+    .container { padding: 20px 24px 32px; }
+    .card-row.three { grid-template-columns: repeat(3, 1fr); }
+    .card-row.two { grid-template-columns: repeat(2, 1fr); }
+    .impact .big-number { font-size: 4.5rem; }
+    .impact .big-number .yen { font-size: 2.5rem; }
+    .detail-table { font-size: 0.9rem; }
+    .detail-table th, .detail-table td { padding: 10px 16px; }
+  }
+
+  /* === 印刷対応 === */
+  @media print {
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header-actions { display: none !important; }
+    .presets { display: none !important; }
+    .container { padding: 10px 16px; }
+    .impact { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .ckp-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .detail-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card { break-inside: avoid; }
+    .impact { break-inside: avoid; }
+    @page { size: A4 landscape; margin: 8mm; }
+    html { font-size: 12px; }
+    .header { padding: 10px 16px; }
+    .header-center h1 { font-size: 1.4rem; }
+    .impact .big-number { font-size: 3rem; }
+    .impact .big-number .yen { font-size: 1.8rem; }
+    .card-row { gap: 10px; margin-bottom: 12px; }
+    .card-row.three { grid-template-columns: repeat(3, 1fr); }
+    .card-row.two { grid-template-columns: repeat(2, 1fr); }
+    .card { padding: 12px; }
+    .input-group input { font-size: 1.1rem; padding: 6px 10px; }
+    .ckp-bars { padding: 12px; margin-bottom: 10px; }
+    .detail-table { margin-bottom: 12px; }
+    .detail-table th, .detail-table td { padding: 6px 10px; font-size: 0.8rem; }
+    .impact { padding: 16px; margin-bottom: 10px; }
+  }
+
+  /* === iOS スプラッシュスクリーン風（起動時のフェードイン） === */
+  .splash-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+  .splash-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .splash-logo {
+    color: var(--gold);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+  .splash-title {
+    color: var(--white);
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+  }
+  .splash-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- スプラッシュスクリーン -->
+<div class="splash-overlay" id="splash">
+  <div class="splash-logo">AEOLUS TYRE</div>
+  <div class="splash-title">CKPシミュレーター</div>
+  <div class="splash-sub">コスト・キロ・パフォーマンス</div>
+</div>
+
+<!-- ヘッダー -->
+<div class="header">
+  <div class="header-logo">AEOLUS</div>
+  <div class="header-center">
+    <h1>CKPシミュレーター</h1>
+    <div class="subtitle">コスト・キロ・パフォーマンス &mdash; 1km走るのにいくらかかるか？</div>
+  </div>
+  <div class="header-actions">
+    <button onclick="resetAll()">リセット</button>
+    <button onclick="window.print()">印刷</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1 -->
+  <div class="step-title"><span class="badge">STEP 1</span> 御社の車両データ</div>
+  <div class="card-row three">
+    <!-- 保有台数 -->
+    <div class="card">
+      <div class="card-label">保有台数</div>
+      <div class="input-group">
+        <input type="number" id="trucks" placeholder="50" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">台</span>
+      </div>
+      <div class="input-hint">対象車両の台数を入力</div>
+    </div>
+    <!-- タイヤ本数 -->
+    <div class="card">
+      <div class="card-label">1台あたりタイヤ本数</div>
+      <div class="input-group">
+        <input type="number" id="tiresPerTruck" placeholder="12" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">本</span>
+      </div>
+      <div class="presets">
+        <button onclick="setVal('tiresPerTruck',12)">大型:12</button>
+        <button onclick="setVal('tiresPerTruck',6)">中型:6</button>
+        <button onclick="setVal('tiresPerTruck',14)">トレーラー:14</button>
+        <button onclick="setVal('tiresPerTruck',18)">トレーラー:18</button>
+      </div>
+    </div>
+    <!-- 年間走行距離 -->
+    <div class="card">
+      <div class="card-label">年間平均走行距離</div>
+      <div class="input-group">
+        <input type="number" id="annualKm" placeholder="120000" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">km</span>
+      </div>
+      <div class="presets">
+        <button onclick="setVal('annualKm',150000)">長距離:150,000</button>
+        <button onclick="setVal('annualKm',120000)">中距離:120,000</button>
+        <button onclick="setVal('annualKm',80000)">近距離:80,000</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-title"><span class="badge">STEP 2</span> タイヤ比較</div>
+  <div class="card-row two">
+    <!-- 現在のタイヤ -->
+    <div class="card">
+      <div class="compare-title">現在お使いのタイヤ</div>
+      <div class="card-label">タイヤ1本の単価</div>
+      <div class="input-group">
+        <input type="number" id="curPrice" placeholder="35000" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">円</span>
+      </div>
+      <div class="card-label" style="margin-top:10px;">想定寿命</div>
+      <div class="input-group">
+        <input type="number" id="curLife" placeholder="100000" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">km</span>
+      </div>
+    </div>
+    <!-- アイオロス -->
+    <div class="card gold-border">
+      <div class="compare-title gold">AEOLUS タイヤ</div>
+      <div class="card-label gold">タイヤ1本の単価</div>
+      <div class="input-group">
+        <input type="number" id="aeoPrice" placeholder="28000" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">円</span>
+      </div>
+      <div class="card-label gold" style="margin-top:10px;">想定寿命</div>
+      <div class="input-group">
+        <input type="number" id="aeoLife" placeholder="120000" min="0" inputmode="numeric" pattern="[0-9]*">
+        <span class="unit">km</span>
+      </div>
+      <div class="presets gold">
+        <button onclick="setAeolus(28000,120000)">11R22.5 D: 28,000円/12万km</button>
+        <button onclick="setAeolus(32000,110000)">11R22.5 iceD: 32,000円/11万km</button>
+        <button onclick="setAeolus(22000,110000)">245/70R19.5 D: 22,000円/11万km</button>
+        <button onclick="setAeolus(35000,130000)">385/65R22.5 T: 35,000円/13万km</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-title"><span class="badge">STEP 3</span> 結果表示</div>
+
+  <!-- CKPバー -->
+  <div class="ckp-bars">
+    <div class="ckp-bar-row">
+      <div class="ckp-bar-label">
+        <span class="name">現在のタイヤ CKP</span>
+        <span class="value current" id="ckpCurVal">-</span>
+      </div>
+      <div class="ckp-bar-track">
+        <div class="ckp-bar-fill current" id="ckpCurBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="ckp-bar-row">
+      <div class="ckp-bar-label">
+        <span class="name">AEOLUS CKP</span>
+        <span class="value aeolus" id="ckpAeoVal">-</span>
+      </div>
+      <div class="ckp-bar-track">
+        <div class="ckp-bar-fill aeolus" id="ckpAeoBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 詳細テーブル -->
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>指標</th>
+        <th>現在</th>
+        <th>AEOLUS</th>
+        <th>差額</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CKP（円/km）</td>
+        <td id="tblCkpCur">-</td>
+        <td id="tblCkpAeo">-</td>
+        <td id="tblCkpDiff">-</td>
+      </tr>
+      <tr>
+        <td>年間交換回数</td>
+        <td id="tblRepCur">-</td>
+        <td id="tblRepAeo">-</td>
+        <td id="tblRepDiff">-</td>
+      </tr>
+      <tr>
+        <td>1台年間コスト</td>
+        <td id="tblCostPerCur">-</td>
+        <td id="tblCostPerAeo">-</td>
+        <td id="tblCostPerDiff">-</td>
+      </tr>
+      <tr>
+        <td>全車両年間コスト</td>
+        <td id="tblCostAllCur">-</td>
+        <td id="tblCostAllAeo">-</td>
+        <td id="tblCostAllDiff">-</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- インパクト表示 -->
+  <div class="impact" id="impactBox">
+    <div class="intro">アイオロス導入による</div>
+    <div class="big-number" id="impactNumber"><span class="yen">&yen;</span>-</div>
+    <div class="label">年間コスト削減</div>
+    <div class="sub" id="impactSub">3年間で - / 5年間で -</div>
+  </div>
+
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  ※ CKP = Cost per Kilometer Performance（1km走行あたりのタイヤコスト）<br>
+  ※ 実際のコスト削減額は使用条件により異なります<br>
+  <strong>AEOLUS TYRE &mdash; ジャパントラックショー2026</strong>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // === スプラッシュスクリーン制御 ===
+  var splash = document.getElementById('splash');
+  setTimeout(function() {
+    splash.classList.add('fade-out');
+    setTimeout(function() { splash.remove(); }, 600);
+  }, 800);
+
+  // === Service Worker 登録 ===
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(function() {});
+  }
+
+  // === 入力要素取得 ===
+  var ids = ['trucks','tiresPerTruck','annualKm','curPrice','curLife','aeoPrice','aeoLife'];
+  var inputs = {};
+  ids.forEach(function(id) { inputs[id] = document.getElementById(id); });
+
+  // === デフォルト値 ===
+  var defaults = { trucks:50, tiresPerTruck:12, annualKm:120000, curPrice:35000, curLife:100000, aeoPrice:28000, aeoLife:120000 };
+
+  // === ローカルストレージで値を保持 ===
+  function saveState() {
+    var state = {};
+    ids.forEach(function(id) { state[id] = inputs[id].value; });
+    try { localStorage.setItem('ckp-state', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      var saved = localStorage.getItem('ckp-state');
+      if (saved) {
+        var state = JSON.parse(saved);
+        ids.forEach(function(id) {
+          if (state[id] !== undefined && state[id] !== '') {
+            inputs[id].value = state[id];
+          }
+        });
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  // === 初期値セット ===
+  function loadDefaults() {
+    Object.keys(defaults).forEach(function(k) { inputs[k].value = defaults[k]; });
+  }
+
+  // === プリセットヘルパー ===
+  window.setVal = function(id, v) {
+    inputs[id].value = v;
+    calc();
+  };
+  window.setAeolus = function(price, life) {
+    inputs.aeoPrice.value = price;
+    inputs.aeoLife.value = life;
+    calc();
+  };
+  window.resetAll = function() {
+    loadDefaults();
+    try { localStorage.removeItem('ckp-state'); } catch(e) {}
+    calc();
+  };
+
+  // === フォーマット関数 ===
+  function fmt(n) { return n.toLocaleString('ja-JP'); }
+  function fmtYen(n) { return '\u00a5' + fmt(Math.round(n)); }
+  function fmtCkp(n) { return n.toFixed(2) + ' \u5186/km'; }
+
+  // === カウントアップアニメーション用 ===
+  var animFrame = null;
+  var animTarget = 0;
+  var animCurrent = 0;
+
+  function animateImpact(target) {
+    animTarget = target;
+    if (animFrame) cancelAnimationFrame(animFrame);
+
+    function step() {
+      var diff = animTarget - animCurrent;
+      if (Math.abs(diff) < 100) {
+        animCurrent = animTarget;
+      } else {
+        animCurrent += diff * 0.15;
+      }
+      renderImpactNumber(Math.round(animCurrent));
+      if (Math.round(animCurrent) !== Math.round(animTarget)) {
+        animFrame = requestAnimationFrame(step);
+      }
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  function renderImpactNumber(val) {
+    var el = document.getElementById('impactNumber');
+    if (val === null) {
+      el.innerHTML = '<span class="yen">&yen;</span>-';
+      return;
+    }
+    var abs = Math.abs(val);
+    el.innerHTML = '<span class="yen">&yen;</span>' + fmt(abs);
+  }
+
+  // === メイン計算 ===
+  function calc() {
+    var trucks = parseFloat(inputs.trucks.value);
+    var tires = parseFloat(inputs.tiresPerTruck.value);
+    var km = parseFloat(inputs.annualKm.value);
+    var curP = parseFloat(inputs.curPrice.value);
+    var curL = parseFloat(inputs.curLife.value);
+    var aeoP = parseFloat(inputs.aeoPrice.value);
+    var aeoL = parseFloat(inputs.aeoLife.value);
+
+    var valid = [trucks, tires, km, curP, curL, aeoP, aeoL].every(function(v) { return v > 0 && isFinite(v); });
+
+    // 値を保存
+    saveState();
+
+    if (!valid) {
+      document.getElementById('ckpCurVal').textContent = '-';
+      document.getElementById('ckpAeoVal').textContent = '-';
+      document.getElementById('ckpCurBar').style.width = '0%';
+      document.getElementById('ckpAeoBar').style.width = '0%';
+      ['tblCkpCur','tblCkpAeo','tblCkpDiff','tblRepCur','tblRepAeo','tblRepDiff',
+       'tblCostPerCur','tblCostPerAeo','tblCostPerDiff','tblCostAllCur','tblCostAllAeo','tblCostAllDiff'
+      ].forEach(function(id) {
+        var el = document.getElementById(id);
+        el.textContent = '-';
+        el.className = '';
+      });
+      renderImpactNumber(null);
+      animCurrent = 0;
+      document.getElementById('impactSub').textContent = '3\u5e74\u9593\u3067 - / 5\u5e74\u9593\u3067 -';
+      document.getElementById('impactBox').classList.remove('negative');
+      return;
+    }
+
+    var ckpCur = curP / curL;
+    var ckpAeo = aeoP / aeoL;
+    var repCur = km / curL;
+    var repAeo = km / aeoL;
+    var costPerCur = repCur * tires * curP;
+    var costPerAeo = repAeo * tires * aeoP;
+    var costAllCur = costPerCur * trucks;
+    var costAllAeo = costPerAeo * trucks;
+    var saving = costAllCur - costAllAeo;
+
+    var maxCkp = Math.max(ckpCur, ckpAeo);
+    document.getElementById('ckpCurVal').textContent = fmtCkp(ckpCur);
+    document.getElementById('ckpAeoVal').textContent = fmtCkp(ckpAeo);
+    document.getElementById('ckpCurBar').style.width = (ckpCur / maxCkp * 100).toFixed(1) + '%';
+    document.getElementById('ckpAeoBar').style.width = (ckpAeo / maxCkp * 100).toFixed(1) + '%';
+
+    setCell('tblCkpCur', fmtCkp(ckpCur));
+    setCell('tblCkpAeo', fmtCkp(ckpAeo));
+    setDiffCell('tblCkpDiff', ckpCur - ckpAeo, function(v) { return v.toFixed(2) + ' \u5186/km'; }, true);
+
+    setCell('tblRepCur', repCur.toFixed(2) + ' \u56de');
+    setCell('tblRepAeo', repAeo.toFixed(2) + ' \u56de');
+    setDiffCell('tblRepDiff', repCur - repAeo, function(v) { return v.toFixed(2) + ' \u56de'; }, true);
+
+    setCell('tblCostPerCur', fmtYen(costPerCur));
+    setCell('tblCostPerAeo', fmtYen(costPerAeo));
+    setDiffCell('tblCostPerDiff', costPerCur - costPerAeo, function(v) { return fmtYen(Math.abs(v)); }, true);
+
+    setCell('tblCostAllCur', fmtYen(costAllCur));
+    setCell('tblCostAllAeo', fmtYen(costAllAeo));
+    setDiffCell('tblCostAllDiff', costAllCur - costAllAeo, function(v) { return fmtYen(Math.abs(v)); }, true);
+
+    var box = document.getElementById('impactBox');
+    if (saving >= 0) {
+      box.classList.remove('negative');
+    } else {
+      box.classList.add('negative');
+    }
+    animateImpact(Math.round(saving));
+
+    var s3 = Math.round(saving * 3);
+    var s5 = Math.round(saving * 5);
+    function toMan(v) {
+      var abs = Math.abs(v);
+      if (abs >= 10000) {
+        return fmt(Math.round(abs / 10000)) + '\u4e07';
+      }
+      return fmt(abs);
+    }
+    document.getElementById('impactSub').textContent =
+      '3\u5e74\u9593\u3067 ' + toMan(s3) + '\u5186 / 5\u5e74\u9593\u3067 ' + toMan(s5) + '\u5186';
+  }
+
+  function setCell(id, text) {
+    document.getElementById(id).textContent = text;
+    document.getElementById(id).className = '';
+  }
+
+  function setDiffCell(id, diff, formatter, positiveIsGreen) {
+    var el = document.getElementById(id);
+    if (Math.abs(diff) < 0.001) {
+      el.textContent = '-';
+      el.className = '';
+      return;
+    }
+    var isPositive = diff > 0;
+    if (positiveIsGreen) {
+      el.className = isPositive ? 'green' : 'red';
+      el.textContent = (isPositive ? '\u25bc ' : '\u25b2 ') + formatter(diff);
+    }
+  }
+
+  // === イベントリスナー ===
+  ids.forEach(function(id) {
+    inputs[id].addEventListener('input', calc);
+  });
+
+  // === iOS キーボード対策：input blur時にスクロール位置を修正 ===
+  ids.forEach(function(id) {
+    inputs[id].addEventListener('blur', function() {
+      setTimeout(function() { window.scrollTo(0, window.scrollY); }, 100);
+    });
+  });
+
+  // === 初期化 ===
+  if (!loadState()) {
+    loadDefaults();
+  }
+  calc();
+})();
+</script>
+</body>
+</html>
