@@ -2,902 +2,1172 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-
-<!-- PWA メタタグ -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AEOLUS CKPシミュ">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#003366">
-<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#08090d">
+<title>CKPシミュレーター — AEOLUS TYRE</title>
 
-<!-- アイコン・マニフェスト -->
+<!-- PWA/アイコン（任意） -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
-<!-- iOS スプラッシュスクリーン（CSSで対応） -->
-<meta name="apple-mobile-web-app-title" content="AEOLUS CKPシミュ">
-
-<title>AEOLUS TYRE CKP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* === リセット・基本 === */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "游ゴシック", "Yu Gothic", "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", sans-serif;
-    background: #f0f2f5;
-    color: #222;
-    line-height: 1.6;
-    min-height: 100vh;
-    min-height: 100dvh;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
+/* ===== デザイントークン ===== */
+:root {
+  --gold: #d4a843;
+  --gold-bright: #f0c95e;
+  --gold-dim: rgba(212, 168, 67, 0.12);
+  --gold-glow: rgba(212, 168, 67, 0.25);
 
-  /* === カラー変数 === */
-  :root {
-    --navy: #003366;
-    --navy-dark: #002244;
-    --gold: #D4A843;
-    --gold-light: #e8c96a;
-    --gold-bg: rgba(212, 168, 67, 0.08);
-    --white: #ffffff;
-    --gray-light: #f5f6f8;
-    --gray: #e0e2e6;
-    --gray-text: #666;
-    --green: #1a8a3f;
-    --green-bg: rgba(26, 138, 63, 0.08);
-    --red: #c0392b;
-  }
+  --bg-deep: #08090d;
+  --bg-surface: #0e1018;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.07);
 
-  /* === ヘッダー === */
-  .header {
-    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
-    color: var(--white);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-logo {
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: var(--gold);
-    letter-spacing: 4px;
-  }
-  .header-center {
-    text-align: center;
-    flex: 1;
-    padding: 0 8px;
-  }
-  .header-center h1 {
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 3px;
-    margin-bottom: 2px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  }
-  .header-center .subtitle {
-    font-size: 0.85rem;
-    opacity: 0.9;
-    font-weight: 400;
-  }
-  .header-actions {
-    display: flex;
-    gap: 6px;
-  }
-  .header-actions button {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: var(--white);
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-family: inherit;
-    transition: background 0.2s;
-    -webkit-appearance: none;
-    touch-action: manipulation;
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .header-actions button:active {
-    background: rgba(255,255,255,0.35);
-  }
+  --text-primary: #f0f0f5;
+  --text-secondary: rgba(240, 240, 245, 0.55);
+  --text-tertiary: rgba(240, 240, 245, 0.35);
 
-  /* === メインコンテナ === */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 16px 12px 32px;
-  }
+  --positive: #34d399;
+  --negative: #f87171;
+  --warn: #fbbf24;
 
-  /* === セクションタイトル === */
-  .step-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .step-title .badge {
-    background: var(--navy);
-    color: var(--white);
-    font-size: 0.7rem;
-    padding: 2px 10px;
-    border-radius: 4px;
-    font-weight: 700;
-  }
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 18px;
+}
 
-  /* === カード === */
-  .card-row {
-    display: grid;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .card-row.three { grid-template-columns: 1fr; }
-  .card-row.two { grid-template-columns: 1fr; }
+/* ===== リセット ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .card {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid var(--gray);
-  }
-  .card.gold-border {
-    border: 2px solid var(--gold);
-    background: linear-gradient(180deg, rgba(212,168,67,0.04), var(--white));
-  }
-  .card-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 8px;
-  }
-  .card-label.gold { color: var(--gold); }
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
 
-  /* === 入力欄 === */
-  .input-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-  .input-group input {
-    flex: 1;
-    font-size: 1.4rem;
-    font-weight: 700;
-    padding: 12px 14px;
-    border: 2px solid var(--gray);
-    border-radius: 10px;
-    text-align: right;
-    font-family: inherit;
-    color: var(--navy);
-    transition: border-color 0.2s;
-    min-width: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    min-height: 48px;
-  }
-  .input-group input:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
-  }
-  .input-group .unit {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--gray-text);
-    white-space: nowrap;
-  }
-  .input-hint {
-    font-size: 0.75rem;
-    color: var(--gray-text);
-    margin-bottom: 8px;
-  }
+body {
+  font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 168, 67, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(99, 102, 241, 0.04), transparent);
+  background-attachment: fixed;
+}
 
-  /* === プリセットボタン === */
-  .presets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .presets button {
-    background: var(--gray-light);
-    border: 1px solid var(--gray);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-family: inherit;
-    color: var(--navy);
-    transition: all 0.15s;
-    white-space: nowrap;
-    -webkit-appearance: none;
-    touch-action: manipulation;
-    min-height: 44px;
-  }
-  .presets button:active {
-    background: var(--navy);
-    color: var(--white);
-    border-color: var(--navy);
-    transform: scale(0.96);
-  }
-  .presets.gold button:active {
-    background: var(--gold);
-    color: var(--white);
-    border-color: var(--gold);
-  }
+/* ===== アプリ風ラッパー（モバイル優先 / デスクトップは横幅拡張） ===== */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  box-shadow: -1px 0 0 var(--glass-border), 1px 0 0 var(--glass-border);
+}
 
-  /* === STEP2 比較カードタイトル === */
-  .compare-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--gray);
+/* デスクトップでは“スマホ枠”を維持せず、横幅を広げて見やすくする */
+@media (min-width: 900px) {
+  .app-shell {
+    max-width: 980px;
+    border-radius: 18px;
+    overflow: clip;
+    box-shadow:
+      0 0 0 1px var(--glass-border),
+      0 22px 60px rgba(0,0,0,0.45);
+    margin: 18px auto;
   }
-  .compare-title.gold {
-    color: var(--gold);
-    border-bottom-color: var(--gold);
+  .main {
+    padding-left: 22px;
+    padding-right: 22px;
   }
+}
 
-  /* === CKPバー === */
-  .ckp-bars {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid var(--gray);
-    margin-bottom: 16px;
-  }
-  .ckp-bar-row {
-    margin-bottom: 14px;
-  }
-  .ckp-bar-row:last-child { margin-bottom: 0; }
-  .ckp-bar-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 6px;
-  }
-  .ckp-bar-label .name {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--navy);
-  }
-  .ckp-bar-label .value {
-    font-size: 1.2rem;
-    font-weight: 900;
-  }
-  .ckp-bar-label .value.current { color: #888; }
-  .ckp-bar-label .value.aeolus { color: var(--gold); }
-  .ckp-bar-track {
-    background: var(--gray-light);
-    border-radius: 8px;
-    height: 28px;
-    overflow: hidden;
-  }
-  .ckp-bar-fill {
-    height: 100%;
-    border-radius: 8px;
-    transition: width 0.4s ease;
-    min-width: 4px;
-  }
-  .ckp-bar-fill.current { background: #aab; }
-  .ckp-bar-fill.aeolus { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+/* ===== フォーカスリング ===== */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 
-  /* === 詳細テーブル === */
-  .detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--white);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid var(--gray);
-    margin-bottom: 16px;
-    font-size: 0.82rem;
-  }
-  .detail-table th, .detail-table td {
-    padding: 10px 8px;
-    text-align: right;
-  }
-  .detail-table th {
-    background: var(--navy);
-    color: var(--white);
-    font-weight: 700;
-    font-size: 0.72rem;
-  }
-  .detail-table th:first-child, .detail-table td:first-child {
-    text-align: left;
-  }
-  .detail-table tr:nth-child(even) { background: var(--gray-light); }
-  .detail-table td.green {
-    color: var(--green);
-    font-weight: 700;
-  }
-  .detail-table td.red {
-    color: var(--red);
-    font-weight: 700;
-  }
+/* ===== ヘッダー ===== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 14px 20px;
+  padding-top: calc(14px + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(8, 9, 13, 0.75);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
 
-  /* === インパクト表示 === */
-  .impact {
-    background: linear-gradient(135deg, #c9a230, var(--gold), var(--gold-light), var(--gold));
-    border-radius: 16px;
-    padding: 24px 20px;
-    text-align: center;
-    color: var(--navy-dark);
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .impact::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.2), transparent 60%);
-    pointer-events: none;
-  }
-  .impact .intro {
-    font-size: 0.9rem;
-    font-weight: 600;
-    opacity: 0.8;
-    margin-bottom: 4px;
-    position: relative;
-  }
-  .impact .big-number {
-    font-size: 3rem;
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: 1px;
-    position: relative;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-  .impact .big-number .yen {
-    font-size: 1.4rem;
-  }
-  .impact .label {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-top: 4px;
-    position: relative;
-  }
-  .impact .sub {
-    font-size: 0.85rem;
-    margin-top: 8px;
-    opacity: 0.75;
-    position: relative;
-  }
-  .impact.negative {
-    background: linear-gradient(135deg, #bbb, #999);
-  }
+.header-logo {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
 
-  /* === フッター === */
-  .footer {
-    text-align: center;
-    font-size: 0.7rem;
-    color: var(--gray-text);
-    padding: 12px 16px 24px;
-    line-height: 1.8;
-  }
-  .footer strong {
-    color: var(--navy);
-  }
+.header-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
 
-  /* === タブレット以上（iPad等） === */
-  @media (min-width: 768px) {
-    .header-center h1 { font-size: 1.4rem; }
-    .header-center .subtitle { font-size: 0.85rem; }
-    .container { padding: 20px 24px 32px; }
-    .card-row.three { grid-template-columns: repeat(3, 1fr); }
-    .card-row.two { grid-template-columns: repeat(2, 1fr); }
-    .impact .big-number { font-size: 4.5rem; }
-    .impact .big-number .yen { font-size: 2.5rem; }
-    .detail-table { font-size: 0.9rem; }
-    .detail-table th, .detail-table td { padding: 10px 16px; }
-  }
+.btn-reset {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text-tertiary);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.btn-reset:hover { color: var(--text-primary); background: var(--glass-hover); }
+.btn-reset:active { transform: scale(0.92); }
 
-  /* === 印刷対応 === */
-  @media print {
-    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .header-actions { display: none !important; }
-    .presets { display: none !important; }
-    .container { padding: 10px 16px; }
-    .impact { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .ckp-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .detail-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .card { break-inside: avoid; }
-    .impact { break-inside: avoid; }
-    @page { size: A4 landscape; margin: 8mm; }
-    html { font-size: 12px; }
-    .header { padding: 10px 16px; }
-    .header-center h1 { font-size: 1.4rem; }
-    .impact .big-number { font-size: 3rem; }
-    .impact .big-number .yen { font-size: 1.4rem; }
-    .card-row { gap: 10px; margin-bottom: 12px; }
-    .card-row.three { grid-template-columns: repeat(3, 1fr); }
-    .card-row.two { grid-template-columns: repeat(2, 1fr); }
-    .card { padding: 12px; }
-    .input-group input { font-size: 1.1rem; padding: 6px 10px; }
-    .ckp-bars { padding: 12px; margin-bottom: 10px; }
-    .detail-table { margin-bottom: 12px; }
-    .detail-table th, .detail-table td { padding: 6px 10px; font-size: 0.8rem; }
-    .impact { padding: 16px; margin-bottom: 10px; }
-  }
+/* ===== メインコンテンツ ===== */
+.main {
+  padding: 8px 16px;
+  padding-bottom: calc(48px + env(safe-area-inset-bottom));
+}
 
-  /* === iOS スプラッシュスクリーン風（起動時のフェードイン） === */
-  .splash-overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.5s ease;
+/* ===== ステップヘッダー ===== */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  margin-top: 28px;
+  padding: 0 4px;
+}
+.step-header:first-child { margin-top: 16px; }
+
+.step-badge {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  background: var(--gold-dim);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 168, 67, 0.2);
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ===== セクション（Glassカード） ===== */
+.section-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+/* カード上部の光のライン */
+.section-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+.section-card--highlight {
+  border-color: rgba(212, 168, 67, 0.2);
+  background: linear-gradient(180deg, rgba(212, 168, 67, 0.05), var(--glass) 60%);
+}
+.section-card--highlight::before {
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.25), transparent);
+}
+
+/* ===== フォーム要素 ===== */
+.field { margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-wrap:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.1);
+}
+/* バリデーションエラー時 */
+.input-wrap.has-error {
+  border-color: var(--negative);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
+}
+
+.input-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  padding: 12px 14px;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  letter-spacing: -0.02em;
+}
+.input-wrap input::placeholder { color: var(--text-tertiary); font-weight: 500; }
+.input-wrap input::-webkit-inner-spin-button,
+.input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.input-unit {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding-right: 14px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* エラーメッセージ */
+.field-error {
+  font-size: 11px;
+  color: var(--negative);
+  margin-top: 4px;
+  min-height: 16px;
+  line-height: 16px;
+}
+
+/* ===== プリセットボタン ===== */
+.presets {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 2px 0;
+  margin-top: 10px;
+}
+.presets::-webkit-scrollbar { display: none; }
+
+.preset-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--text-secondary);
+  font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+.preset-btn:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.15); }
+.preset-btn:active { transform: scale(0.96); }
+
+.preset-btn[aria-pressed="true"],
+.preset-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+.preset-btn-gold[aria-pressed="true"],
+.preset-btn-gold.active {
+  background: var(--gold-dim);
+  color: var(--gold-bright);
+  border-color: rgba(212, 168, 67, 0.35);
+  font-weight: 700;
+}
+
+/* ===== タイヤセクションラベル ===== */
+.tire-label {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.01em;
+}
+.tire-label-current { color: var(--text-secondary); }
+.tire-label-aeolus { color: var(--gold); }
+
+.tire-label-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.tire-label-dot-gray {
+  background: var(--text-secondary);
+  box-shadow: 0 0 8px rgba(240, 240, 245, 0.2);
+}
+.tire-label-dot-gold {
+  background: var(--gold);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.4);
+}
+
+/* ===== 結果: CKPバー ===== */
+.ckp-bars { margin-bottom: 24px; }
+
+.ckp-bar-item { margin-bottom: 16px; }
+.ckp-bar-item:last-child { margin-bottom: 0; }
+
+.ckp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.ckp-bar-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.03em;
+}
+.ckp-bar-value {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.ckp-bar-value-gray { color: var(--text-secondary); }
+.ckp-bar-value-gold { color: var(--gold-bright); }
+
+.ckp-bar-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+.ckp-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transform-origin: left;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 3px;
+}
+.ckp-bar-fill-gray {
+  background: linear-gradient(90deg, rgba(240, 240, 245, 0.2), rgba(240, 240, 245, 0.35));
+}
+.ckp-bar-fill-gold {
+  background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.3);
+}
+
+/* ===== 比較テーブル ===== */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.compare-table th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.compare-table td {
+  padding: 12px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+
+.compare-table .col-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+  width: 30%;
+}
+.compare-table .col-current {
+  color: var(--text-secondary);
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.compare-table .col-aeolus {
+  color: var(--gold-bright);
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.compare-table .col-diff {
+  color: var(--positive);
+  text-align: right;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* ===== インパクトカード ===== */
+.impact-card {
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  margin-top: 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1510 0%, #0f0e0a 40%, #0c0d12 100%);
+  border: 1px solid rgba(212, 168, 67, 0.15);
+}
+/* 光のエフェクト（控えめ） */
+.impact-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 20%, rgba(212, 168, 67, 0.1), transparent 40%),
+              radial-gradient(circle at 70% 80%, rgba(99, 102, 241, 0.05), transparent 40%);
+  animation: shimmer 10s ease-in-out infinite alternate;
+}
+@keyframes shimmer {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-3%, 3%); }
+}
+.impact-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.35), transparent);
+}
+
+.impact-subtitle {
+  font-size: 11px;
+  color: rgba(240, 240, 245, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+.impact-amount {
+  font-size: clamp(36px, 11vw, 52px);
+  font-weight: 900;
+  color: var(--gold-bright);
+  line-height: 1.1;
+  margin: 8px 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 30px rgba(212, 168, 67, 0.25);
+}
+.impact-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
+}
+.impact-sub {
+  font-size: 13px;
+  color: rgba(240, 240, 245, 0.45);
+  line-height: 1.8;
+  position: relative;
+  z-index: 1;
+}
+.impact-sub strong {
+  color: var(--gold-bright);
+  font-weight: 800;
+}
+
+/* ===== フッター ===== */
+.footer {
+  text-align: center;
+  padding: 24px 16px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  margin-top: 8px;
+}
+.footer-brand {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.footer-note {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+  line-height: 1.5;
+}
+
+/* ===== アニメーション（初回のみ・控えめ） ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.section-card { animation: fadeIn 0.4s ease both; }
+.step-header  { animation: fadeIn 0.3s ease both; }
+.impact-card  { animation: fadeIn 0.5s ease 0.2s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
-  .splash-overlay.fade-out {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .splash-logo {
-    color: var(--gold);
-    font-size: 1.2rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    margin-bottom: 12px;
-  }
-  .splash-title {
-    color: var(--white);
-    font-size: 2rem;
-    font-weight: 900;
-    letter-spacing: 3px;
-  }
-  .splash-sub {
-    color: rgba(255,255,255,0.6);
-    font-size: 0.85rem;
-    margin-top: 8px;
-  }
+}
+
+/* ===== スクロールバー ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+::selection { background: rgba(212, 168, 67, 0.3); color: var(--text-primary); }
 </style>
 </head>
 <body>
+<div class="app-shell">
 
-<!-- スプラッシュスクリーン -->
-<div class="splash-overlay" id="splash">
-  <div class="splash-logo">AEOLUS TYRE</div>
-  <div class="splash-title">CKPシミュレーター</div>
-  <div class="splash-sub">コスト・キロ・パフォーマンス</div>
-</div>
+<!-- ===== ヘッダー ===== -->
+<header class="header">
+  <div class="header-logo">AEOLUS TYRE</div>
+  <div class="header-title">CKPシミュレーター</div>
+  <button class="btn-reset" id="btnReset" aria-label="リセット">&times;</button>
+</header>
 
-<!-- ヘッダー -->
-<div class="header">
-  <div class="header-logo">AEOLUS</div>
-  <div class="header-center">
-    <h1>CKPシミュレーター</h1>
-    <div class="subtitle">コスト・キロ・パフォーマンス &mdash; 1km走るのにいくらかかるか？</div>
+<!-- ===== メイン ===== -->
+<main class="main">
+
+  <!-- STEP 1: 車両データ -->
+  <div class="step-header">
+    <span class="step-badge">STEP 1</span>
+    <span class="step-title">御社の車両データ</span>
   </div>
-  <div class="header-actions">
-    <button onclick="resetAll()">リセット</button>
-    <button onclick="window.print()">印刷</button>
-  </div>
-</div>
 
-<div class="container">
-
-  <!-- STEP 1 -->
-  <div class="step-title"><span class="badge">STEP 1</span> 御社の車両データ</div>
-  <div class="card-row three">
+  <div class="section-card">
     <!-- 保有台数 -->
-    <div class="card">
-      <div class="card-label">保有台数</div>
-      <div class="input-group">
-        <input type="number" id="trucks" placeholder="50" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">台</span>
+    <div class="field">
+      <label class="field-label" for="numTrucks">保有台数</label>
+      <div class="input-wrap" id="wrap-numTrucks">
+        <input type="number" inputmode="numeric" id="numTrucks" value="50" min="1" placeholder="50">
+        <span class="input-unit">台</span>
       </div>
-      <div class="input-hint">対象車両の台数を入力</div>
+      <div class="field-error" id="err-numTrucks"></div>
     </div>
-    <!-- タイヤ本数 -->
-    <div class="card">
-      <div class="card-label">1台あたりタイヤ本数</div>
-      <div class="input-group">
-        <input type="number" id="tiresPerTruck" placeholder="12" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">本</span>
+
+    <!-- 1台あたりタイヤ本数 -->
+    <div class="field">
+      <label class="field-label" for="tiresPerTruck">1台あたりタイヤ本数</label>
+      <div class="input-wrap" id="wrap-tiresPerTruck">
+        <input type="number" inputmode="numeric" id="tiresPerTruck" value="12" min="1" placeholder="12">
+        <span class="input-unit">本</span>
       </div>
-      <div class="presets">
-        <button onclick="setVal('tiresPerTruck',12)">大型:12</button>
-        <button onclick="setVal('tiresPerTruck',6)">中型:6</button>
-        <button onclick="setVal('tiresPerTruck',14)">トレーラー:14</button>
-        <button onclick="setVal('tiresPerTruck',18)">トレーラー:18</button>
+      <div class="field-error" id="err-tiresPerTruck"></div>
+      <div class="presets" role="group" aria-label="タイヤ本数プリセット">
+        <button class="preset-btn active" aria-pressed="true" data-target="tiresPerTruck" data-value="12">大型:12</button>
+        <button class="preset-btn" aria-pressed="false" data-target="tiresPerTruck" data-value="10">大型:10</button>
+        <button class="preset-btn" aria-pressed="false" data-target="tiresPerTruck" data-value="6">中型:6</button>
       </div>
     </div>
-    <!-- 年間走行距離 -->
-    <div class="card">
-      <div class="card-label">年間平均走行距離</div>
-      <div class="input-group">
-        <input type="number" id="annualKm" placeholder="120000" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">km</span>
+
+    <!-- 年間平均走行距離 -->
+    <div class="field">
+      <label class="field-label" for="annualKm">年間平均走行距離</label>
+      <div class="input-wrap" id="wrap-annualKm">
+        <input type="number" inputmode="numeric" id="annualKm" value="120000" min="1" placeholder="120000">
+        <span class="input-unit">km</span>
       </div>
-      <div class="presets">
-        <button onclick="setVal('annualKm',150000)">長距離:150,000</button>
-        <button onclick="setVal('annualKm',120000)">中距離:120,000</button>
-        <button onclick="setVal('annualKm',80000)">近距離:80,000</button>
+      <div class="field-error" id="err-annualKm"></div>
+      <div class="presets" role="group" aria-label="走行距離プリセット">
+        <button class="preset-btn" aria-pressed="false" data-target="annualKm" data-value="150000">長距離:150,000</button>
+        <button class="preset-btn active" aria-pressed="true" data-target="annualKm" data-value="120000">中距離:120,000</button>
+        <button class="preset-btn" aria-pressed="false" data-target="annualKm" data-value="80000">近距離:80,000</button>
       </div>
     </div>
   </div>
 
-  <!-- STEP 2 -->
-  <div class="step-title"><span class="badge">STEP 2</span> タイヤ比較</div>
-  <div class="card-row two">
-    <!-- 現在のタイヤ -->
-    <div class="card">
-      <div class="compare-title">現在お使いのタイヤ</div>
-      <div class="card-label">タイヤ1本の単価</div>
-      <div class="input-group">
-        <input type="number" id="curPrice" placeholder="35000" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">円</span>
-      </div>
-      <div class="card-label" style="margin-top:10px;">想定寿命</div>
-      <div class="input-group">
-        <input type="number" id="curLife" placeholder="100000" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">km</span>
-      </div>
+  <!-- STEP 2: タイヤ比較 -->
+  <div class="step-header">
+    <span class="step-badge">STEP 2</span>
+    <span class="step-title">タイヤ比較</span>
+  </div>
+
+  <!-- 現在のタイヤ -->
+  <div class="section-card" style="margin-bottom: 10px;">
+    <div class="tire-label tire-label-current">
+      <span class="tire-label-dot tire-label-dot-gray"></span>
+      現在のタイヤ
     </div>
-    <!-- アイオロス -->
-    <div class="card gold-border">
-      <div class="compare-title gold">AEOLUS タイヤ</div>
-      <div class="card-label gold">タイヤ1本の単価</div>
-      <div class="input-group">
-        <input type="number" id="aeoPrice" placeholder="28000" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">円</span>
+    <div class="field">
+      <label class="field-label" for="currentPrice">単価</label>
+      <div class="input-wrap" id="wrap-currentPrice">
+        <input type="number" inputmode="numeric" id="currentPrice" value="35000" min="0" placeholder="35000">
+        <span class="input-unit">円</span>
       </div>
-      <div class="card-label gold" style="margin-top:10px;">想定寿命</div>
-      <div class="input-group">
-        <input type="number" id="aeoLife" placeholder="120000" min="0" inputmode="numeric" pattern="[0-9]*">
-        <span class="unit">km</span>
+      <div class="field-error" id="err-currentPrice"></div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="currentLife">寿命</label>
+      <div class="input-wrap" id="wrap-currentLife">
+        <input type="number" inputmode="numeric" id="currentLife" value="100000" min="1" placeholder="100000">
+        <span class="input-unit">km</span>
       </div>
-      <div class="presets gold">
-        <button onclick="setAeolus(28000,120000)">11R22.5 D: 28,000円/12万km</button>
-        <button onclick="setAeolus(32000,110000)">11R22.5 iceD: 32,000円/11万km</button>
-        <button onclick="setAeolus(22000,110000)">245/70R19.5 D: 22,000円/11万km</button>
-        <button onclick="setAeolus(35000,130000)">385/65R22.5 T: 35,000円/13万km</button>
-      </div>
+      <div class="field-error" id="err-currentLife"></div>
     </div>
   </div>
 
-  <!-- STEP 3 -->
-  <div class="step-title"><span class="badge">STEP 3</span> 結果表示</div>
-
-  <!-- CKPバー -->
-  <div class="ckp-bars">
-    <div class="ckp-bar-row">
-      <div class="ckp-bar-label">
-        <span class="name">現在のタイヤ CKP</span>
-        <span class="value current" id="ckpCurVal">-</span>
-      </div>
-      <div class="ckp-bar-track">
-        <div class="ckp-bar-fill current" id="ckpCurBar" style="width:0%"></div>
-      </div>
+  <!-- AEOLUSタイヤ -->
+  <div class="section-card section-card--highlight">
+    <div class="tire-label tire-label-aeolus">
+      <span class="tire-label-dot tire-label-dot-gold"></span>
+      AEOLUSタイヤ
     </div>
-    <div class="ckp-bar-row">
-      <div class="ckp-bar-label">
-        <span class="name">AEOLUS CKP</span>
-        <span class="value aeolus" id="ckpAeoVal">-</span>
+    <div class="field">
+      <label class="field-label" for="aeolusPrice">単価</label>
+      <div class="input-wrap" id="wrap-aeolusPrice">
+        <input type="number" inputmode="numeric" id="aeolusPrice" value="33000" min="0" placeholder="33000">
+        <span class="input-unit">円</span>
       </div>
-      <div class="ckp-bar-track">
-        <div class="ckp-bar-fill aeolus" id="ckpAeoBar" style="width:0%"></div>
+      <div class="field-error" id="err-aeolusPrice"></div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="aeolusLife">寿命</label>
+      <div class="input-wrap" id="wrap-aeolusLife">
+        <input type="number" inputmode="numeric" id="aeolusLife" value="120000" min="1" placeholder="120000">
+        <span class="input-unit">km</span>
       </div>
+      <div class="field-error" id="err-aeolusLife"></div>
+    </div>
+    <div class="presets" role="group" aria-label="AEOLUSタイヤプリセット">
+      <button class="preset-btn preset-btn-gold" aria-pressed="false" data-aeolus="33000,120000">11R22.5: 33,000円/12万km</button>
+      <button class="preset-btn preset-btn-gold" aria-pressed="false" data-aeolus="27000,110000">245/70R19.5: 27,000円/11万km</button>
+      <button class="preset-btn preset-btn-gold" aria-pressed="false" data-aeolus="21000,90000">225/80R17.5: 21,000円/9万km</button>
+      <button class="preset-btn preset-btn-gold" aria-pressed="false" data-aeolus="52000,130000">385/65R22.5: 52,000円/13万km</button>
     </div>
   </div>
 
-  <!-- 詳細テーブル -->
-  <table class="detail-table">
-    <thead>
-      <tr>
-        <th>指標</th>
-        <th>現在</th>
-        <th>AEOLUS</th>
-        <th>差額</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>CKP（円/km）</td>
-        <td id="tblCkpCur">-</td>
-        <td id="tblCkpAeo">-</td>
-        <td id="tblCkpDiff">-</td>
-      </tr>
-      <tr>
-        <td>年間交換回数</td>
-        <td id="tblRepCur">-</td>
-        <td id="tblRepAeo">-</td>
-        <td id="tblRepDiff">-</td>
-      </tr>
-      <tr>
-        <td>1台年間コスト</td>
-        <td id="tblCostPerCur">-</td>
-        <td id="tblCostPerAeo">-</td>
-        <td id="tblCostPerDiff">-</td>
-      </tr>
-      <tr>
-        <td>全車両年間コスト</td>
-        <td id="tblCostAllCur">-</td>
-        <td id="tblCostAllAeo">-</td>
-        <td id="tblCostAllDiff">-</td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- STEP 3: 結果 -->
+  <div class="step-header">
+    <span class="step-badge">STEP 3</span>
+    <span class="step-title">結果</span>
+  </div>
+
+  <div class="section-card">
+    <!-- CKPバー -->
+    <div class="ckp-bars">
+      <div class="ckp-bar-item">
+        <div class="ckp-bar-label">
+          <span class="ckp-bar-name">現在のタイヤ</span>
+          <span class="ckp-bar-value ckp-bar-value-gray" id="barCurrentCkp">-</span>
+        </div>
+        <div class="ckp-bar-track">
+          <div class="ckp-bar-fill ckp-bar-fill-gray" id="barCurrentFill" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="ckp-bar-item">
+        <div class="ckp-bar-label">
+          <span class="ckp-bar-name">AEOLUS</span>
+          <span class="ckp-bar-value ckp-bar-value-gold" id="barAeolusCkp">-</span>
+        </div>
+        <div class="ckp-bar-track">
+          <div class="ckp-bar-fill ckp-bar-fill-gold" id="barAeolusFill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 比較テーブル -->
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>指標</th>
+          <th style="text-align:right">現在</th>
+          <th style="text-align:right">AEOLUS</th>
+          <th style="text-align:right">差額</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-label">CKP（円/km）</td>
+          <td class="col-current" id="tblCurrentCkp">-</td>
+          <td class="col-aeolus" id="tblAeolusCkp">-</td>
+          <td class="col-diff" id="tblDiffCkp">-</td>
+        </tr>
+        <tr>
+          <td class="col-label">年間交換回数</td>
+          <td class="col-current" id="tblCurrentChanges">-</td>
+          <td class="col-aeolus" id="tblAeolusChanges">-</td>
+          <td class="col-diff" id="tblDiffChanges">-</td>
+        </tr>
+        <tr>
+          <td class="col-label">1台あたり年間コスト</td>
+          <td class="col-current" id="tblCurrentCostPerTruck">-</td>
+          <td class="col-aeolus" id="tblAeolusCostPerTruck">-</td>
+          <td class="col-diff" id="tblDiffCostPerTruck">-</td>
+        </tr>
+        <tr>
+          <td class="col-label">全車両年間コスト</td>
+          <td class="col-current" id="tblCurrentTotalCost">-</td>
+          <td class="col-aeolus" id="tblAeolusTotalCost">-</td>
+          <td class="col-diff" id="tblDiffTotalCost">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- インパクト表示 -->
-  <div class="impact" id="impactBox">
-    <div class="intro">アイオロス導入による</div>
-    <div class="big-number" id="impactNumber"><span class="yen">&yen;</span>-</div>
-    <div class="label">年間コスト削減</div>
-    <div class="sub" id="impactSub">3年間で - / 5年間で -</div>
+  <div class="impact-card" id="impactCard">
+    <div class="impact-subtitle">アイオロス導入による</div>
+    <div class="impact-amount" id="impactAmount">-</div>
+    <div class="impact-label">年間コスト削減</div>
+    <div class="impact-sub" id="impactSub"></div>
   </div>
 
-</div>
+</main>
 
-<!-- フッター -->
-<div class="footer">
-  ※ CKP = Cost per Kilometer Performance（1km走行あたりのタイヤコスト）<br>
-  ※ 実際のコスト削減額は使用条件により異なります<br>
-  <strong>AEOLUS TYRE &mdash; ジャパントラックショー2026</strong>
-</div>
+<!-- ===== フッター ===== -->
+<footer class="footer">
+  <div class="footer-brand">AEOLUS TYRE</div>
+  <div class="footer-note">※実際のコスト削減額は使用条件により異なります</div>
+</footer>
+
+</div><!-- /.app-shell -->
 
 <script>
 (function() {
   'use strict';
 
-  // === スプラッシュスクリーン制御 ===
-  var splash = document.getElementById('splash');
-  setTimeout(function() {
-    splash.classList.add('fade-out');
-    setTimeout(function() { splash.remove(); }, 600);
-  }, 800);
+  // =========================================================
+  // 1. 状態定義
+  // =========================================================
 
-  // === Service Worker 登録 ===
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(function() {});
-  }
+  // デフォルト値（リセット時に使用）
+  var DEFAULT_STATE = Object.freeze({
+    numTrucks: 50,
+    tiresPerTruck: 12,
+    annualKm: 120000,
+    currentPrice: 35000,
+    currentLife: 100000,
+    aeolusPrice: 33000,
+    aeolusLife: 120000,
+  });
 
-  // === 入力要素取得 ===
-  var ids = ['trucks','tiresPerTruck','annualKm','curPrice','curLife','aeoPrice','aeoLife'];
+  // 各フィールドの最小値（バリデーション用）
+  var MIN_VALUES = {
+    numTrucks: 1,
+    tiresPerTruck: 1,
+    annualKm: 1,
+    currentPrice: 0,
+    currentLife: 1,
+    aeolusPrice: 0,
+    aeolusLife: 1,
+  };
+
+  // 入力フィールドのDOM参照キャッシュ
+  var inputIds = Object.keys(DEFAULT_STATE);
   var inputs = {};
-  ids.forEach(function(id) { inputs[id] = document.getElementById(id); });
+  inputIds.forEach(function(id) {
+    inputs[id] = document.getElementById(id);
+  });
 
-  // === デフォルト値 ===
-  var defaults = { trucks:50, tiresPerTruck:12, annualKm:120000, curPrice:35000, curLife:100000, aeoPrice:28000, aeoLife:120000 };
+  // =========================================================
+  // 2. ユーティリティ関数
+  // =========================================================
 
-  // === ローカルストレージで値を保持 ===
-  function saveState() {
+  // 入力値を数値に変換（不正値は0）
+  function getVal(el) {
+    var v = parseFloat(el.value);
+    return isNaN(v) || v < 0 ? 0 : v;
+  }
+
+  // 全フィールドから状態オブジェクトを読み取り
+  function readState() {
     var state = {};
-    ids.forEach(function(id) { state[id] = inputs[id].value; });
-    try { localStorage.setItem('ckp-state', JSON.stringify(state)); } catch(e) {}
+    inputIds.forEach(function(id) {
+      state[id] = getVal(inputs[id]);
+    });
+    return state;
   }
 
-  function loadState() {
-    try {
-      var saved = localStorage.getItem('ckp-state');
-      if (saved) {
-        var state = JSON.parse(saved);
-        ids.forEach(function(id) {
-          if (state[id] !== undefined && state[id] !== '') {
-            inputs[id].value = state[id];
-          }
-        });
-        return true;
+  // 整数フォーマット（カンマ区切り）
+  function fmt(n) {
+    if (n === 0 || isNaN(n) || !isFinite(n)) return '-';
+    return Math.round(n).toLocaleString('ja-JP');
+  }
+
+  // 小数フォーマット
+  function fmtDecimal(n, digits) {
+    if (n === 0 || isNaN(n) || !isFinite(n)) return '-';
+    return n.toFixed(digits);
+  }
+
+  // 万円表示（10,000以上は「万円」、未満は「円」）
+  function fmtMan(n) {
+    if (n === 0 || isNaN(n) || !isFinite(n)) return '-';
+    var man = n / 10000;
+    if (man >= 1) {
+      return fmt(Math.round(man)) + '万円';
+    }
+    return fmt(Math.round(n)) + '円';
+  }
+
+  // =========================================================
+  // 3. バリデーション
+  // =========================================================
+
+  // フィールドごとのバリデーション。エラーメッセージを返す（正常なら空文字）
+  function validateField(id, value) {
+    var raw = inputs[id].value.trim();
+
+    // 空欄チェック
+    if (raw === '') {
+      return '値を入力してください';
+    }
+
+    // 数値チェック
+    if (isNaN(value)) {
+      return '有効な数値を入力してください';
+    }
+
+    // 最小値チェック
+    var min = MIN_VALUES[id];
+    if (min !== undefined && value < min) {
+      if (min === 0) return '0以上の値を入力してください';
+      return min + '以上の値を入力してください';
+    }
+
+    // 上限チェック（常識的な範囲）
+    if (id === 'numTrucks' && value > 100000) {
+      return '100,000以下の値を入力してください';
+    }
+    if ((id === 'currentPrice' || id === 'aeolusPrice') && value > 10000000) {
+      return '1,000万以下の値を入力してください';
+    }
+
+    return '';
+  }
+
+  // 全フィールドバリデーション実行。戻り値: エラーがあればtrue
+  function validateAll(state) {
+    var hasError = false;
+    inputIds.forEach(function(id) {
+      var msg = validateField(id, state[id]);
+      var errEl = document.getElementById('err-' + id);
+      var wrapEl = document.getElementById('wrap-' + id);
+      if (errEl) errEl.textContent = msg;
+      if (wrapEl) {
+        if (msg) {
+          wrapEl.classList.add('has-error');
+          hasError = true;
+        } else {
+          wrapEl.classList.remove('has-error');
+        }
       }
-    } catch(e) {}
-    return false;
+    });
+    return hasError;
   }
 
-  // === 初期値セット ===
-  function loadDefaults() {
-    Object.keys(defaults).forEach(function(k) { inputs[k].value = defaults[k]; });
+  // =========================================================
+  // 4. 計算ロジック（純粋関数）
+  // =========================================================
+
+  function computeResults(s) {
+    // 全入力が有効かどうか
+    var valid = s.numTrucks > 0
+      && s.tiresPerTruck > 0
+      && s.annualKm > 0
+      && s.currentLife > 0
+      && s.aeolusLife > 0;
+
+    // CKP（円/km）= 単価 / 寿命
+    var cCkp = s.currentLife > 0 ? s.currentPrice / s.currentLife : 0;
+    var aCkp = s.aeolusLife > 0 ? s.aeolusPrice / s.aeolusLife : 0;
+
+    // 年間交換回数（1台・全タイヤ）= (年間走行距離 / 寿命) * タイヤ本数
+    var cChanges = s.currentLife > 0 ? (s.annualKm / s.currentLife) * s.tiresPerTruck : 0;
+    var aChanges = s.aeolusLife > 0 ? (s.annualKm / s.aeolusLife) * s.tiresPerTruck : 0;
+
+    // 1台あたり年間コスト = 交換回数 * 単価
+    var cCostPerTruck = cChanges * s.currentPrice;
+    var aCostPerTruck = aChanges * s.aeolusPrice;
+
+    // 全車両年間コスト
+    var cTotalCost = cCostPerTruck * s.numTrucks;
+    var aTotalCost = aCostPerTruck * s.numTrucks;
+
+    return {
+      valid: valid,
+      cCkp: cCkp,
+      aCkp: aCkp,
+      cChanges: cChanges,
+      aChanges: aChanges,
+      cCostPerTruck: cCostPerTruck,
+      aCostPerTruck: aCostPerTruck,
+      cTotalCost: cTotalCost,
+      aTotalCost: aTotalCost,
+      diffCkp: cCkp - aCkp,
+      diffChanges: cChanges - aChanges,
+      diffCostPerTruck: cCostPerTruck - aCostPerTruck,
+      diffTotalCost: cTotalCost - aTotalCost,
+    };
   }
 
-  // === プリセットヘルパー ===
-  window.setVal = function(id, v) {
-    inputs[id].value = v;
-    calc();
-  };
-  window.setAeolus = function(price, life) {
-    inputs.aeoPrice.value = price;
-    inputs.aeoLife.value = life;
-    calc();
-  };
-  window.resetAll = function() {
-    loadDefaults();
-    try { localStorage.removeItem('ckp-state'); } catch(e) {}
-    calc();
-  };
+  // =========================================================
+  // 5. カウントアップアニメーション
+  // =========================================================
 
-  // === フォーマット関数 ===
-  function fmt(n) { return n.toLocaleString('ja-JP'); }
-  function fmtYen(n) { return '\u00a5' + fmt(Math.round(n)); }
-  function fmtCkp(n) { return n.toFixed(2) + ' \u5186/km'; }
-
-  // === カウントアップアニメーション用 ===
   var animFrame = null;
-  var animTarget = 0;
-  var animCurrent = 0;
+  var animStart = 0;
+  var animFrom = 0;
+  var animTo = 0;
+  var ANIM_DURATION = 500;
 
   function animateImpact(target) {
-    animTarget = target;
     if (animFrame) cancelAnimationFrame(animFrame);
+    animFrom = animTo;
+    animTo = target;
+    animStart = performance.now();
 
-    function step() {
-      var diff = animTarget - animCurrent;
-      if (Math.abs(diff) < 100) {
-        animCurrent = animTarget;
-      } else {
-        animCurrent += diff * 0.15;
-      }
-      renderImpactNumber(Math.round(animCurrent));
-      if (Math.round(animCurrent) !== Math.round(animTarget)) {
+    function step(now) {
+      var elapsed = now - animStart;
+      var progress = Math.min(elapsed / ANIM_DURATION, 1);
+      // イージング（指数関数）
+      var ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      var current = animFrom + (animTo - animFrom) * ease;
+
+      var el = document.getElementById('impactAmount');
+      el.textContent = current > 0 ? '¥' + fmt(Math.round(current)) : '-';
+
+      if (progress < 1) {
         animFrame = requestAnimationFrame(step);
       }
     }
+
     animFrame = requestAnimationFrame(step);
   }
 
-  function renderImpactNumber(val) {
-    var el = document.getElementById('impactNumber');
-    if (val === null) {
-      el.innerHTML = '<span class="yen">&yen;</span>-';
-      return;
-    }
-    var abs = Math.abs(val);
-    el.innerHTML = '<span class="yen">&yen;</span>' + fmt(abs);
-  }
+  // =========================================================
+  // 6. DOM更新（結果のレンダリング）
+  // =========================================================
 
-  // === メイン計算 ===
-  function calc() {
-    var trucks = parseFloat(inputs.trucks.value);
-    var tires = parseFloat(inputs.tiresPerTruck.value);
-    var km = parseFloat(inputs.annualKm.value);
-    var curP = parseFloat(inputs.curPrice.value);
-    var curL = parseFloat(inputs.curLife.value);
-    var aeoP = parseFloat(inputs.aeoPrice.value);
-    var aeoL = parseFloat(inputs.aeoLife.value);
+  function renderResults(r) {
+    // CKPバー
+    var maxCkp = Math.max(r.cCkp, r.aCkp, 0.001);
+    document.getElementById('barCurrentCkp').textContent = r.valid ? fmtDecimal(r.cCkp, 2) + ' 円/km' : '-';
+    document.getElementById('barAeolusCkp').textContent = r.valid ? fmtDecimal(r.aCkp, 2) + ' 円/km' : '-';
 
-    var valid = [trucks, tires, km, curP, curL, aeoP, aeoL].every(function(v) { return v > 0 && isFinite(v); });
-
-    // 値を保存
-    saveState();
-
-    if (!valid) {
-      document.getElementById('ckpCurVal').textContent = '-';
-      document.getElementById('ckpAeoVal').textContent = '-';
-      document.getElementById('ckpCurBar').style.width = '0%';
-      document.getElementById('ckpAeoBar').style.width = '0%';
-      ['tblCkpCur','tblCkpAeo','tblCkpDiff','tblRepCur','tblRepAeo','tblRepDiff',
-       'tblCostPerCur','tblCostPerAeo','tblCostPerDiff','tblCostAllCur','tblCostAllAeo','tblCostAllDiff'
-      ].forEach(function(id) {
-        var el = document.getElementById(id);
-        el.textContent = '-';
-        el.className = '';
-      });
-      renderImpactNumber(null);
-      animCurrent = 0;
-      document.getElementById('impactSub').textContent = '3\u5e74\u9593\u3067 - / 5\u5e74\u9593\u3067 -';
-      document.getElementById('impactBox').classList.remove('negative');
-      return;
-    }
-
-    var ckpCur = curP / curL;
-    var ckpAeo = aeoP / aeoL;
-    var repCur = km / curL;
-    var repAeo = km / aeoL;
-    var costPerCur = repCur * tires * curP;
-    var costPerAeo = repAeo * tires * aeoP;
-    var costAllCur = costPerCur * trucks;
-    var costAllAeo = costPerAeo * trucks;
-    var saving = costAllCur - costAllAeo;
-
-    var maxCkp = Math.max(ckpCur, ckpAeo);
-    document.getElementById('ckpCurVal').textContent = fmtCkp(ckpCur);
-    document.getElementById('ckpAeoVal').textContent = fmtCkp(ckpAeo);
-    document.getElementById('ckpCurBar').style.width = (ckpCur / maxCkp * 100).toFixed(1) + '%';
-    document.getElementById('ckpAeoBar').style.width = (ckpAeo / maxCkp * 100).toFixed(1) + '%';
-
-    setCell('tblCkpCur', fmtCkp(ckpCur));
-    setCell('tblCkpAeo', fmtCkp(ckpAeo));
-    setDiffCell('tblCkpDiff', ckpCur - ckpAeo, function(v) { return v.toFixed(2) + ' \u5186/km'; }, true);
-
-    setCell('tblRepCur', repCur.toFixed(2) + ' \u56de');
-    setCell('tblRepAeo', repAeo.toFixed(2) + ' \u56de');
-    setDiffCell('tblRepDiff', repCur - repAeo, function(v) { return v.toFixed(2) + ' \u56de'; }, true);
-
-    setCell('tblCostPerCur', fmtYen(costPerCur));
-    setCell('tblCostPerAeo', fmtYen(costPerAeo));
-    setDiffCell('tblCostPerDiff', costPerCur - costPerAeo, function(v) { return fmtYen(Math.abs(v)); }, true);
-
-    setCell('tblCostAllCur', fmtYen(costAllCur));
-    setCell('tblCostAllAeo', fmtYen(costAllAeo));
-    setDiffCell('tblCostAllDiff', costAllCur - costAllAeo, function(v) { return fmtYen(Math.abs(v)); }, true);
-
-    var box = document.getElementById('impactBox');
-    if (saving >= 0) {
-      box.classList.remove('negative');
+    if (r.valid && maxCkp > 0) {
+      document.getElementById('barCurrentFill').style.width = ((r.cCkp / maxCkp) * 100) + '%';
+      document.getElementById('barAeolusFill').style.width = ((r.aCkp / maxCkp) * 100) + '%';
     } else {
-      box.classList.add('negative');
+      document.getElementById('barCurrentFill').style.width = '0%';
+      document.getElementById('barAeolusFill').style.width = '0%';
     }
-    animateImpact(Math.round(saving));
 
-    var s3 = Math.round(saving * 3);
-    var s5 = Math.round(saving * 5);
-    function toMan(v) {
-      var abs = Math.abs(v);
-      if (abs >= 10000) {
-        return fmt(Math.round(abs / 10000)) + '\u4e07';
-      }
-      return fmt(abs);
-    }
-    document.getElementById('impactSub').textContent =
-      '3\u5e74\u9593\u3067 ' + toMan(s3) + '\u5186 / 5\u5e74\u9593\u3067 ' + toMan(s5) + '\u5186';
-  }
+    // 比較テーブル
+    document.getElementById('tblCurrentCkp').textContent = r.valid ? fmtDecimal(r.cCkp, 2) : '-';
+    document.getElementById('tblAeolusCkp').textContent = r.valid ? fmtDecimal(r.aCkp, 2) : '-';
+    document.getElementById('tblDiffCkp').textContent = r.valid && r.diffCkp > 0 ? '-' + fmtDecimal(r.diffCkp, 2) : '-';
 
-  function setCell(id, text) {
-    document.getElementById(id).textContent = text;
-    document.getElementById(id).className = '';
-  }
+    document.getElementById('tblCurrentChanges').textContent = r.valid ? fmtDecimal(r.cChanges, 1) + '回' : '-';
+    document.getElementById('tblAeolusChanges').textContent = r.valid ? fmtDecimal(r.aChanges, 1) + '回' : '-';
+    document.getElementById('tblDiffChanges').textContent = r.valid && r.diffChanges > 0 ? '-' + fmtDecimal(r.diffChanges, 1) + '回' : '-';
 
-  function setDiffCell(id, diff, formatter, positiveIsGreen) {
-    var el = document.getElementById(id);
-    if (Math.abs(diff) < 0.001) {
-      el.textContent = '-';
-      el.className = '';
-      return;
-    }
-    var isPositive = diff > 0;
-    if (positiveIsGreen) {
-      el.className = isPositive ? 'green' : 'red';
-      el.textContent = (isPositive ? '\u25bc ' : '\u25b2 ') + formatter(diff);
+    document.getElementById('tblCurrentCostPerTruck').textContent = r.valid ? '¥' + fmt(r.cCostPerTruck) : '-';
+    document.getElementById('tblAeolusCostPerTruck').textContent = r.valid ? '¥' + fmt(r.aCostPerTruck) : '-';
+    document.getElementById('tblDiffCostPerTruck').textContent = r.valid && r.diffCostPerTruck > 0 ? '-¥' + fmt(r.diffCostPerTruck) : '-';
+
+    document.getElementById('tblCurrentTotalCost').textContent = r.valid ? '¥' + fmt(r.cTotalCost) : '-';
+    document.getElementById('tblAeolusTotalCost').textContent = r.valid ? '¥' + fmt(r.aTotalCost) : '-';
+    document.getElementById('tblDiffTotalCost').textContent = r.valid && r.diffTotalCost > 0 ? '-¥' + fmt(r.diffTotalCost) : '-';
+
+    // インパクト表示
+    if (r.valid && r.diffTotalCost > 0) {
+      animateImpact(r.diffTotalCost);
+      var y3 = r.diffTotalCost * 3;
+      var y5 = r.diffTotalCost * 5;
+      document.getElementById('impactSub').innerHTML =
+        '3年間で <strong>' + fmtMan(y3) + '</strong> / 5年間で <strong>' + fmtMan(y5) + '</strong>';
+    } else {
+      animateImpact(0);
+      document.getElementById('impactSub').textContent = '';
     }
   }
 
-  // === イベントリスナー ===
-  ids.forEach(function(id) {
-    inputs[id].addEventListener('input', calc);
+  // =========================================================
+  // 7. メイン更新パイプライン
+  // =========================================================
+
+  function update() {
+    var state = readState();
+    var hasError = validateAll(state);
+
+    // エラーがあっても計算は実行（結果が「-」になるだけ）
+    var results = computeResults(state);
+    renderResults(results);
+  }
+
+  // =========================================================
+  // 8. プリセット管理
+  // =========================================================
+
+  function activatePreset(btn) {
+    var parent = btn.closest('.presets');
+    parent.querySelectorAll('.preset-btn').forEach(function(b) {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+  }
+
+  // =========================================================
+  // 9. イベント登録
+  // =========================================================
+
+  // 全入力フィールドにリアルタイム計算
+  inputIds.forEach(function(id) {
+    inputs[id].addEventListener('input', update);
   });
 
-  // === iOS キーボード対策：input blur時にスクロール位置を修正 ===
-  ids.forEach(function(id) {
-    inputs[id].addEventListener('blur', function() {
-      setTimeout(function() { window.scrollTo(0, window.scrollY); }, 100);
+  // 汎用プリセットボタン（tiresPerTruck, annualKm）
+  document.querySelectorAll('.preset-btn[data-target]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.dataset.target;
+      var value = btn.dataset.value;
+      var input = document.getElementById(target);
+      if (input) {
+        input.value = value;
+        input.dispatchEvent(new Event('input'));
+      }
+      activatePreset(btn);
     });
   });
 
-  // === 初期化 ===
-  if (!loadState()) {
-    loadDefaults();
-  }
-  calc();
+  // AEOLUSプリセットボタン
+  document.querySelectorAll('.preset-btn[data-aeolus]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var parts = btn.dataset.aeolus.split(',');
+      inputs.aeolusPrice.value = parts[0];
+      inputs.aeolusLife.value = parts[1];
+      inputs.aeolusPrice.dispatchEvent(new Event('input'));
+      activatePreset(btn);
+    });
+  });
+
+  // リセットボタン
+  document.getElementById('btnReset').addEventListener('click', function() {
+    // 全入力をデフォルト値に戻す
+    inputIds.forEach(function(id) {
+      inputs[id].value = DEFAULT_STATE[id];
+    });
+
+    // プリセットボタンのactive状態をリセット
+    document.querySelectorAll('.preset-btn').forEach(function(b) {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    // デフォルトプリセットを再選択
+    document.querySelectorAll('.preset-btn[data-target="tiresPerTruck"][data-value="12"]').forEach(function(b) {
+      b.classList.add('active');
+      b.setAttribute('aria-pressed', 'true');
+    });
+    document.querySelectorAll('.preset-btn[data-target="annualKm"][data-value="120000"]').forEach(function(b) {
+      b.classList.add('active');
+      b.setAttribute('aria-pressed', 'true');
+    });
+
+    // エラー表示をクリア
+    inputIds.forEach(function(id) {
+      var errEl = document.getElementById('err-' + id);
+      var wrapEl = document.getElementById('wrap-' + id);
+      if (errEl) errEl.textContent = '';
+      if (wrapEl) wrapEl.classList.remove('has-error');
+    });
+
+    animTo = 0;
+    update();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // =========================================================
+  // 10. 初期計算
+  // =========================================================
+  update();
+
 })();
 </script>
-<footer style="text-align:center;padding:16px;color:#666;font-size:12px;">© 2026 満達 / AEOLUS TYRE. All Rights Reserved.</footer></body>
+</body>
 </html>

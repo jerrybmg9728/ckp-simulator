@@ -1,0 +1,25 @@
+{
+  "name": "AEOLUS TYRE CKP",
+  "short_name": "AEOLUS CKP",
+  "description": "コスト・キロ・パフォーマンス — 1km走るのにいくらかかるか？",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#003366",
+  "theme_color": "#003366",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
